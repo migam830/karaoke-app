@@ -1,74 +1,97 @@
-import { Image, StyleSheet, Platform } from 'react-native';
+import React, { useState } from "react";
+import { View, Text, Button, FlatList, StyleSheet } from "react-native";
 
-import { HelloWave } from '@/components/HelloWave';
-import ParallaxScrollView from '@/components/ParallaxScrollView';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
+// List of available songs
+const songs = [
+    {
+        id: "1",
+        title: "Song 1",
+        file: require("../../assets/deep-space-travel-background-noise-313946.mp3"),
+    },
+    {
+        id: "2",
+        title: "Song 2",
+        file: require("../../assets/flickering-neon-316717.mp3"),
+    },
+    {
+        id: "3", // Ensure unique IDs for each song
+        title: "Song 3",
+        file: require("../../assets/police-sirens-316719.mp3"),
+    },
+];
 
 export default function HomeScreen() {
-  return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12'
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-        <ThemedText>
-          Tap the Explore tab to learn more about what's included in this starter app.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          When you're ready, run{' '}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
-  );
+    const [selectedSong, setSelectedSong] = useState<{
+        id: string;
+        title: string;
+        file: any;
+    } | null>(null);
+
+    // Handle the selection of a song
+    const handleSelectSong = (song: any) => {
+        setSelectedSong(song);
+    };
+
+    return (
+        <View style={styles.container}>
+            <Text style={styles.title}>Select a song to start singing!</Text>
+
+            {/* Display the list of songs */}
+            <FlatList
+                data={songs}
+                renderItem={({ item }) => (
+                    <View style={styles.songItem}>
+                        <Text style={styles.songTitle}>{item.title}</Text>
+                        <Button
+                            title="Select"
+                            onPress={() => handleSelectSong(item)} // Set selected song
+                        />
+                    </View>
+                )}
+                keyExtractor={(item) => item.id}
+            />
+
+            {/* Display selected song details if available */}
+            {selectedSong && (
+                <View style={styles.selectedSongContainer}>
+                    <Text style={styles.selectedSongTitle}>
+                        Selected Song: {selectedSong.title}
+                    </Text>
+                    <Text>Song ID: {selectedSong.id}</Text>
+                    {/* You could also show the file path here to verify */}
+                    <Text>File Path: {selectedSong.file}</Text>
+                </View>
+            )}
+        </View>
+    );
 }
 
 const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
-  },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
-  },
+    container: {
+        flex: 1,
+        justifyContent: "center",
+        alignItems: "center",
+        padding: 20,
+    },
+    title: {
+        fontSize: 20,
+        marginBottom: 20,
+    },
+    songItem: {
+        marginVertical: 10,
+        alignItems: "center",
+    },
+    songTitle: {
+        fontSize: 18,
+    },
+    selectedSongContainer: {
+        marginTop: 20,
+        padding: 10,
+        backgroundColor: "#f0f0f0",
+        borderRadius: 5,
+    },
+    selectedSongTitle: {
+        fontWeight: "bold",
+        fontSize: 16,
+    },
 });
