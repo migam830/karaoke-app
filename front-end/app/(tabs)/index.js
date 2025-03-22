@@ -41,7 +41,13 @@ export default function HomeScreen() {
         if (selectedSong) {
             // Play the selected song (Replace this with actual audio playback logic)
             console.log(`Playing: ${selectedSong.title}`);
-            router.push("/play");
+            router.push({
+                pathname: "/play",
+                params: {
+                    songId: selectedSong.id,
+                    songTitle: selectedSong.title,
+                },
+            });
         } else {
             // No song selected, maybe show an alert or default action
             console.log("No song selected!");
