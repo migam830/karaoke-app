@@ -1,5 +1,13 @@
 import React, { useState } from "react";
-import { View, Text, Button, FlatList, StyleSheet } from "react-native";
+import {
+    View,
+    Text,
+    FlatList,
+    StyleSheet,
+    Image,
+    TouchableOpacity,
+} from "react-native";
+import { router } from "expo-router";
 
 // List of available songs
 const songs = [
@@ -28,6 +36,18 @@ export default function HomeScreen() {
         setSelectedSong(song);
     };
 
+    // Handle Play button click (You can add your play functionality here)
+    const handlePlay = () => {
+        if (selectedSong) {
+            // Play the selected song (Replace this with actual audio playback logic)
+            console.log(`Playing: ${selectedSong.title}`);
+            router.push("/play");
+        } else {
+            // No song selected, maybe show an alert or default action
+            console.log("No song selected!");
+        }
+    };
+
     return (
         <View style={styles.container}>
             <Text style={styles.title}>Select a song to start singing!</Text>
@@ -38,10 +58,12 @@ export default function HomeScreen() {
                 renderItem={({ item }) => (
                     <View style={styles.songItem}>
                         <Text style={styles.songTitle}>{item.title}</Text>
-                        <Button
-                            title="Select"
+                        <TouchableOpacity
+                            style={styles.selectButton}
                             onPress={() => handleSelectSong(item)} // Set selected song
-                        />
+                        >
+                            <Text style={styles.selectButtonText}>Select</Text>
+                        </TouchableOpacity>
                     </View>
                 )}
                 keyExtractor={(item) => item.id}
@@ -54,10 +76,19 @@ export default function HomeScreen() {
                         Selected Song: {selectedSong.title}
                     </Text>
                     <Text>Song ID: {selectedSong.id}</Text>
-                    {/* You could also show the file path here to verify */}
                     <Text>File Path: {selectedSong.file}</Text>
                 </View>
             )}
+
+            {/* Play button that is always visible */}
+            <View style={styles.playButtonContainer}>
+                <TouchableOpacity onPress={handlePlay}>
+                    <Image
+                        source={require("../../assets/images/play-button.png")}
+                        style={styles.playButtonImage}
+                    />
+                </TouchableOpacity>
+            </View>
         </View>
     );
 }
@@ -80,6 +111,16 @@ const styles = StyleSheet.create({
     songTitle: {
         fontSize: 18,
     },
+    selectButton: {
+        marginTop: 10,
+        backgroundColor: "#6200EE",
+        padding: 10,
+        borderRadius: 5,
+    },
+    selectButtonText: {
+        color: "#fff",
+        fontSize: 16,
+    },
     selectedSongContainer: {
         marginTop: 20,
         padding: 10,
@@ -89,5 +130,16 @@ const styles = StyleSheet.create({
     selectedSongTitle: {
         fontWeight: "bold",
         fontSize: 16,
+    },
+    playButtonContainer: {
+        position: "absolute",
+        bottom: 200,
+        left: "50%",
+        transform: [{ translateX: "-50%" }],
+        zIndex: 1,
+    },
+    playButtonImage: {
+        width: 100,
+        height: 100,
     },
 });
