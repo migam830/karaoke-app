@@ -1,6 +1,6 @@
-from mutagen.mp3 import MP3
 from flask import Flask
 from flask import request
+from frequencyAnalysis import findNotes
 
 app = Flask(__name__)
 
@@ -12,11 +12,11 @@ def test():
 def process_audio():
     if request.method == 'POST':
         file1 = request.files['song']
-        file1.save('song.mp3')
+        file1.save('song.wav')
         return "uploaded file"
     return "Error with request"
 
 @app.route("/analyse-song")
 def analyse_song():
-    audio = MP3('song.mp3')
-    return "length: " + str(audio.info.length)
+    notesList = findNotes('test.wav')
+    return "Notes: " + str(notesList)
