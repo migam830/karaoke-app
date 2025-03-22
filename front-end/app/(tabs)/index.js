@@ -6,8 +6,11 @@ import {
     StyleSheet,
     Image,
     TouchableOpacity,
+    ImageBackground,
 } from "react-native";
 import { router } from "expo-router";
+
+
 
 // List of available songs
 const songs = [
@@ -56,6 +59,11 @@ export default function HomeScreen() {
 
     return (
         <View style={styles.container}>
+        <ImageBackground
+                        source={require("../../assets/images/background.png")}
+                        resizeMode="cover"
+                        style={styles.image}
+                    >
             <Text style={styles.title}>Select a song to start singing!</Text>
 
             {/* Display the list of songs */}
@@ -95,11 +103,13 @@ export default function HomeScreen() {
                     />
                 </TouchableOpacity>
             </View>
+        </ImageBackground>
         </View>
     );
 }
 
 const styles = StyleSheet.create({
+
     container: {
         flex: 1,
         justifyContent: "center",
@@ -148,4 +158,8 @@ const styles = StyleSheet.create({
         width: 100,
         height: 100,
     },
+    image: {
+    flex: 1,
+    justifyContent: 'center',
+  },
 });

@@ -67,6 +67,11 @@ export default function PlayScreen() {
         <View
             style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
         >
+        <ImageBackground
+                                source={require("../../assets/images/background.png")}
+                                resizeMode="cover"
+                                style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
+                            >
             <Text>Now Playing: {songTitle}</Text>
             <Text>Song ID: {songId}</Text>
             <Button
@@ -84,6 +89,7 @@ export default function PlayScreen() {
             {recordingStatus === "stopped" && (
                 <Button title="Play Recording" onPress={playSound} />
             )}
+        </ImageBackground>
         </View>
     );
 }
