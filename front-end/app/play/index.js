@@ -1,14 +1,16 @@
-import { StyleSheet, Text, View } from "react-native";
 import React from "react";
+import { View, Text } from "react-native";
+import { useLocalSearchParams } from "expo-router";
 
-const PlayScreen = () => {
+export default function PlayScreen() {
+    const { songId, songTitle } = useLocalSearchParams();
+
     return (
-        <View>
-            <Text> PlayScreen </Text>
+        <View
+            style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
+        >
+            <Text>Now Playing: {songTitle}</Text>
+            <Text>Song ID: {songId}</Text>
         </View>
     );
-};
-
-export default PlayScreen;
-
-const styles = StyleSheet.create({});
+}
