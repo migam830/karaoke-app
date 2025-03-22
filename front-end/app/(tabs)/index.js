@@ -21,14 +21,10 @@ const songs = [
 ];
 
 export default function HomeScreen() {
-    const [selectedSong, setSelectedSong] = useState<{
-        id: string;
-        title: string;
-        file: any;
-    } | null>(null);
+    const [selectedSong, setSelectedSong] = useState(null);
 
     // Handle the selection of a song
-    const handleSelectSong = (song: any) => {
+    const handleSelectSong = (song) => {
         setSelectedSong(song);
     };
 
