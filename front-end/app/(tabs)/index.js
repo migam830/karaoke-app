@@ -30,7 +30,7 @@ const songs = [
 ];
 
 export default function HomeScreen() {
-    const [selectedSongId, setSelectedSongId] = useState(null);
+    const [selectedSongId, setSelectedSongId, songFile] = useState(null);
 
     const handleSelectSong = (song) => {
         setSelectedSongId(song.id);
@@ -47,6 +47,7 @@ export default function HomeScreen() {
                     params: {
                         songId: selectedSong.id,
                         songTitle: selectedSong.title,
+                        songFile,
                     },
                 });
             } else {

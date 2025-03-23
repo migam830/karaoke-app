@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, Button, StyleSheet, Alert } from "react-native";
+import { View, Text, StyleSheet, Alert, TouchableOpacity } from "react-native";
 import { useLocalSearchParams } from "expo-router";
 import { Audio } from "expo-av";
 import { LinearGradient } from "expo-linear-gradient";
@@ -86,27 +86,62 @@ export default function PlayScreen() {
             return;
         }
 
-        let formData = new FormData();
-        formData.append("song", {
-            uri: recordingUri,
-            type: "audio/wav",
-            name: "recording.wav",
-        });
-
         try {
-            const response = await fetch(`${BACKEND_URL}/upload-song`, {
+            // Fetch the recording data from the URI
+            const response = await fetch(recordingUri);
+            const blob = await response.blob();
+
+            let formData = new FormData();
+            formData.append("song", blob, "recording.wav"); // Append the blob
+
+            const uploadResponse = await fetch(`${BACKEND_URL}/upload-song`, {
                 method: "POST",
                 body: formData,
                 headers: {
                     "Content-Type": "multipart/form-data",
                 },
             });
-            const text = await response.text();
-            console.log("Upload response:", text);
-            Alert.alert("Upload Success", text);
+            const uploadData = await uploadResponse.json();
+            const filePath = uploadData.file_path; // Get the saved file path from the response
+
+            // Step 2: Analyze the uploaded file to extract notes
+            const analyzeResponse = await fetch(`${BACKEND_URL}/analyse-song`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    file_path: filePath, // Send the file path to the backend for analysis
+                }),
+            });
+            const analyzeData = await analyzeResponse.json();
+            const userNotesList = analyzeData.notes; // Get the notes from the backend
+
+            // Step 3: Calculate the score
+            const scoreResponse = await fetch(
+                `${BACKEND_URL}/calculate-score`,
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                        userNotesList: userNotesList, // Send the user notes to calculate the score
+                        songChoice: songId, // Send the selected song's ID
+                    }),
+                }
+            );
+            const scoreData = await scoreResponse.json();
+            const score = scoreData.score; // Get the score from the backend
+
+            // Show the score
+            Alert.alert("Your Score", `Your score is: ${score}`);
         } catch (error) {
             console.error("Upload error:", error);
-            Alert.alert("Upload Failed", "Error uploading file.");
+            Alert.alert(
+                "Error",
+                "There was an error processing your recording."
+            );
         }
     }
 
@@ -118,31 +153,43 @@ export default function PlayScreen() {
             <Text style={styles.text}>Now Playing: {songTitle}</Text>
             <Text style={styles.text}>Song ID: {songId}</Text>
 
-            {/* Button to test connection to backend */}
-            <Button title="Test Backend" onPress={testBackend} />
+            <TouchableOpacity style={styles.selectButton} onPress={testBackend}>
+                <Text style={styles.selectButtonText}>Test Backend</Text>
+            </TouchableOpacity>
 
-            {/* Button to start or stop recording */}
-            <Button
-                title={
-                    recordingStatus === "recording"
-                        ? "Stop Recording"
-                        : "Start Recording"
-                }
+            <TouchableOpacity
+                style={styles.selectButton}
                 onPress={
                     recordingStatus === "recording"
                         ? stopRecording
                         : startRecording
                 }
-            />
+            >
+                <Text style={styles.selectButtonText}>
+                    {recordingStatus === "recording"
+                        ? "Stop Recording"
+                        : "Start Recording"}
+                </Text>
+            </TouchableOpacity>
 
-            {/* Show these buttons after recording is stopped */}
             {recordingStatus === "stopped" && (
                 <>
-                    <Button title="Play Recording" onPress={playSound} />
-                    <Button
-                        title="Upload Recording"
+                    <TouchableOpacity
+                        style={styles.selectButton}
+                        onPress={playSound}
+                    >
+                        <Text style={styles.selectButtonText}>
+                            Play Recording
+                        </Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                        style={styles.selectButton}
                         onPress={uploadRecording}
-                    />
+                    >
+                        <Text style={styles.selectButtonText}>
+                            Upload Recording
+                        </Text>
+                    </TouchableOpacity>
                 </>
             )}
         </LinearGradient>
@@ -159,5 +206,16 @@ const styles = StyleSheet.create({
         fontSize: 18,
         color: "white",
         marginBottom: 10,
+    },
+    selectButton: {
+        marginTop: 10,
+        backgroundColor: "#010122",
+        paddingVertical: 12,
+        paddingHorizontal: 25,
+        borderRadius: 20,
+    },
+    selectButtonText: {
+        color: "white",
+        fontSize: 16,
     },
 });

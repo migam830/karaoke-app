@@ -3,9 +3,21 @@ from scipy.io import wavfile
 import numpy as np
 import csv
 import math
+from pydub import AudioSegment
+
+def convert_to_wav(input_file,output_file):
+        """Converts an audio file to WAV format."""
+        try:
+            audio = AudioSegment.from_file(input_file)
+            print(f"Converting {input_file} to WAV format...")
+            audio.export(output_file, format="wav")
+            return output_file
+        except Exception as e:
+            print(f"Error during conversion: {e}")
+            return "vocals/song1Vocals.wav"
 
 def findNotes(wavFile):
-    sr, audio = wavfile.read(wavFile)
+    sr, audio = wavfile.read(convert_to_wav(wavFile,"uploads/converted.wav"))
     time, frequency, _, activation = crepe.predict(audio, sr, viterbi = False, step_size = 1000)
 
     timeList = []
@@ -37,7 +49,7 @@ def findScore(userNotesList, songChoice):
     noteDifference = 0
     songNotesList = []
 
-    songFile = "song" + str(songChoice) + "Notes.wav"
+    songFile = "../notes/song1Notes.csv"
     
 
     with open(songFile, "r") as file:
@@ -46,9 +58,16 @@ def findScore(userNotesList, songChoice):
             songNotesList.append(row)
 
     
-    for element in userNotesList:
-        noteDifference += abs(userNotesList[element] - songNotesList[element])
+    min_length = min(len(userNotesList), len(songNotesList))
 
-    score = round(100 - (noteDifference / len(userNotesList) * 12))
+    for i in range(min_length):  # Iterate through indices
+        noteDifference += abs(int(userNotesList[i]) - int(songNotesList[i][0]))  
+
     
-    return(score)
+    if min_length > 0:
+        score = round(100 - (noteDifference / min_length * 12))
+    else:
+        score = 0  # Or any other default score you want
+
+    return score
+# print(findScore(findNotes("back-end/uploads/1742700762.wav"),1))
