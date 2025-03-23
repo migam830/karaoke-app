@@ -6,13 +6,11 @@ import {
     StyleSheet,
     Image,
     TouchableOpacity,
-    ImageBackground,
+    Dimensions,
 } from "react-native";
 import { router } from "expo-router";
+import { LinearGradient } from "expo-linear-gradient";
 
-
-
-// List of available songs
 const songs = [
     {
         id: "1",
@@ -25,48 +23,47 @@ const songs = [
         file: require("../../assets/flickering-neon-316717.mp3"),
     },
     {
-        id: "3", // Ensure unique IDs for each song
+        id: "3",
         title: "Song 3",
         file: require("../../assets/police-sirens-316719.mp3"),
     },
 ];
 
 export default function HomeScreen() {
-    const [selectedSong, setSelectedSong] = useState(null);
+    const [selectedSongId, setSelectedSongId] = useState(null);
 
-    // Handle the selection of a song
     const handleSelectSong = (song) => {
-        setSelectedSong(song);
+        setSelectedSongId(song.id);
     };
 
-    // Handle Play button click (You can add your play functionality here)
     const handlePlay = () => {
-        if (selectedSong) {
-            // Play the selected song (Replace this with actual audio playback logic)
-            console.log(`Playing: ${selectedSong.title}`);
-            router.push({
-                pathname: "/play",
-                params: {
-                    songId: selectedSong.id,
-                    songTitle: selectedSong.title,
-                },
-            });
+        if (selectedSongId) {
+            const selectedSong = songs.find(
+                (song) => song.id === selectedSongId
+            );
+            if (selectedSong) {
+                router.push({
+                    pathname: "/play",
+                    params: {
+                        songId: selectedSong.id,
+                        songTitle: selectedSong.title,
+                    },
+                });
+            } else {
+                console.error("Selected song not found.");
+            }
         } else {
-            // No song selected, maybe show an alert or default action
-            console.log("No song selected!");
+            console.error("No song selected.");
         }
     };
 
     return (
-        <View style={styles.container}>
-        <ImageBackground
-                        source={require("../../assets/images/background.png")}
-                        resizeMode="cover"
-                        style={styles.image}
-                    >
+        <LinearGradient
+            colors={["#f8b195", "#f67280", "#c06c84"]}
+            style={styles.container}
+        >
             <Text style={styles.title}>Select a song to start singing!</Text>
 
-            {/* Display the list of songs */}
             <FlatList
                 data={songs}
                 renderItem={({ item }) => (
@@ -74,92 +71,75 @@ export default function HomeScreen() {
                         <Text style={styles.songTitle}>{item.title}</Text>
                         <TouchableOpacity
                             style={styles.selectButton}
-                            onPress={() => handleSelectSong(item)} // Set selected song
+                            onPress={() => handleSelectSong(item)}
                         >
                             <Text style={styles.selectButtonText}>Select</Text>
                         </TouchableOpacity>
                     </View>
                 )}
                 keyExtractor={(item) => item.id}
+                style={styles.flatList} // Add style for FlatList
             />
 
-            {/* Display selected song details if available */}
-            {selectedSong && (
-                <View style={styles.selectedSongContainer}>
-                    <Text style={styles.selectedSongTitle}>
-                        Selected Song: {selectedSong.title}
-                    </Text>
-                    <Text>Song ID: {selectedSong.id}</Text>
-                    <Text>File Path: {selectedSong.file}</Text>
-                </View>
-            )}
-
-            {/* Play button that is always visible */}
-            <View style={styles.playButtonContainer}>
-                <TouchableOpacity onPress={handlePlay}>
-                    <Image
-                        source={require("../../assets/images/play-button.png")}
-                        style={styles.playButtonImage}
-                    />
-                </TouchableOpacity>
-            </View>
-        </ImageBackground>
-        </View>
+            <TouchableOpacity
+                style={styles.playButtonContainer}
+                onPress={handlePlay}
+            >
+                <Image
+                    source={require("../../assets/images/play-button.png")}
+                    style={styles.playButtonImage}
+                />
+            </TouchableOpacity>
+        </LinearGradient>
     );
 }
 
 const styles = StyleSheet.create({
-
     container: {
         flex: 1,
         justifyContent: "center",
         alignItems: "center",
-        padding: 20,
+        padding: 10,
     },
     title: {
-        fontSize: 20,
-        marginBottom: 20,
+        fontSize: 24,
+        fontWeight: "bold",
+        marginBottom: 30,
+        textAlign: "center",
+        color: "white",
     },
     songItem: {
-        marginVertical: 10,
+        marginVertical: 15,
         alignItems: "center",
+        width: "90%",
     },
     songTitle: {
         fontSize: 18,
+        marginBottom: 10,
+        color: "white",
     },
     selectButton: {
         marginTop: 10,
         backgroundColor: "#010122",
-        padding: 10,
-        borderRadius: 5,
+        paddingVertical: 12,
+        paddingHorizontal: 25,
+        borderRadius: 20,
     },
     selectButtonText: {
-        color: "#fff",
-        fontSize: 16,
-    },
-    selectedSongContainer: {
-        marginTop: 20,
-        padding: 10,
-        backgroundColor: "#f0f0f0",
-        borderRadius: 5,
-    },
-    selectedSongTitle: {
-        fontWeight: "bold",
+        color: "white",
         fontSize: 16,
     },
     playButtonContainer: {
-        position: "absolute",
-        bottom: 200,
-        left: "50%",
-        transform: [{ translateX: "-50%" }],
-        zIndex: 1,
+        marginTop: 40,
+        alignSelf: "center",
     },
     playButtonImage: {
-        width: 100,
-        height: 100,
+        width: Dimensions.get("window").width * 0.15,
+        height: Dimensions.get("window").width * 0.15,
     },
-    image: {
-    flex: 1,
-    justifyContent: 'center',
-  },
+    flatList: {
+        // Style for FlatList
+        width: "100%",
+        flexGrow: 1, // Take up all available space
+    },
 });
